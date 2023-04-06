@@ -3,10 +3,10 @@
 # Install-Module -Name ExchangeOnlineManagement (if not installed)
 # Import-Module ExchangeOnlineManagement
 # Connect-ExchangeOnline -UserPrincipalName <AdministrativeUserAccount> -UseRPSSession
-# This will export users from the source tenant with the CustomAttribute1 = "Cross-Tenant-Dest-MJP"
+# This will export users from the source tenant with the CustomAttribute1 = "Cross-Tenant-Dest-NAME"
 # Make sure the CustomAttribute1 is set within EXCHANGE, under user Mailbox setting -> Others -> Custom Attributes
-$crossTenantDest = "MJP"
-# Set the crossTenantDest to the appropriate TARGET TENANT, MJP, POS, or STS
+$crossTenantDest = "NAME"
+# Set the crossTenantDest to the appropriate TARGET TENANT
 $outFileUsers = "$home\desktop\UsersToMigrate.txt"
 $outFileUsersXML = "$home\desktop\UsersToMigrate.xml"
 Get-Mailbox -Filter "CustomAttribute1 -like 'Cross-Tenant-Dest-$crossTenantDest'" -ResultSize Unlimited | Select-Object -ExpandProperty  Alias | Out-File $outFileUsers
