@@ -7,7 +7,9 @@
 # This will import users from the source tenant using the exported file created by the SOURCE TENANT SCRIPT
 $organization = "@DOMAIN.onmicrosoft.com"
 $orgdomain = "@DOMAIN.NAME"
+$crossTenantDest = "NAME"
 # Edit the above to match the appropriate TARGET TENANT information, the $orgdomain will become the PRIMARY SMTP address
+# The $crossTenantDest should be the SAME as it was in the SOURCE (this is used to read the correct input file for parsing)
 
 function Get-RandomPassword {
     param (
@@ -54,14 +56,14 @@ function Get-RandomPassword {
     return $password | ConvertTo-SecureString -AsPlainText
 }
 
-$mailboxes = Import-Clixml $home\desktop\UsersToMigrate.xml
+$mailboxes = Import-Clixml $home\desktop\UsersToMigrate-$crossTenantDest.xml
 foreach ($m in $mailboxes) {
     $mosi = $m.Alias + $organization
 	$mosd = $m.Alias + $orgdomain
     $Password = Get-RandomPassword 16
     $x500 = "x500:" + $m.LegacyExchangeDn
     $tmpUser = New-MailUser -MicrosoftOnlineServicesID $mosi -PrimarySmtpAddress $mosd -ExternalEmailAddress $mosi -FirstName $m.FirstName -LastName $m.LastName -Name $m.Name -DisplayName $m.DisplayName -Alias $m.Alias -Password $Password
-    $tmpUser | Set-MailUser -EmailAddresses @{add = $x500,$mosi } -ExchangeGuid $m.ExchangeGuid -ArchiveGuid $m.ArchiveGuid -CustomAttribute1 "Cross-Tenant-Project"
+    $tmpUser | Set-MailUser -EmailAddresses @{add = $x500,$mosi } -ExchangeGuid $m.ExchangeGuid -ArchiveGuid $m.ArchiveGuid -CustomAttribute1 "Cross-Tenant-Migration-Completed"
     $tmpx500 = $m.EmailAddresses | Where-Object { $_ -match "x500" }
     $tmpx500 | ForEach-Object { Set-MailUser $m.Alias -EmailAddresses @{add = "$_" } }
 }
